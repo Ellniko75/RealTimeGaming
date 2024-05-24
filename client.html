@@ -1,0 +1,74 @@
+<html>
+<header>
+    <link rel="stylesheet" href="styles.css">
+
+</header>
+
+
+<body>
+    <canvas id="rasterCanvas" style="width: 1920px; height: 1080px;"></canvas>
+
+
+    <div class="main">
+        <!-- <div class="grid">
+
+        </div>
+         -->
+
+
+    </div>
+
+
+
+
+
+
+
+</body>
+
+
+
+
+<script>
+    let grid = document.getElementsByClassName("grid")[0]
+    function getPixelData(array, startPosition) {
+        return [array[startPosition], array[startPosition + 1], array[startPosition + 2], array[startPosition + 3]]
+    }
+    //const worker = new Worker('worker.js');
+    let canvas = document.querySelector("#rasterCanvas")
+    let websocket = new WebSocket("http://localhost:8080/")
+
+    //worker.onmessage = (event) => {
+    //paintCanvas(event.data)
+    //}
+    websocket.onmessage = async (event) => {
+        let start = performance.now()
+        let clampedArray = new Uint8ClampedArray(await event.data.arrayBuffer());
+        let imgData = new ImageData(clampedArray, 1920, 1080);
+        let bitmap = await createImageBitmap(imgData);
+        paintCanvas(bitmap)
+        let end = performance.now()
+        console.log(end - start)
+        //await worker.postMessage(event.data)
+    }
+    /*function paint(array) {
+       for (let i = 0; i < array.length; i = i + 4) {
+            pixelData = getPixelData(array, i)
+            let d = document.createElement("div")
+            d.className = "grid-item"
+            d.style.backgroundColor = `rgba(${pixelData[0]},${pixelData[1]},${pixelData[2]},${pixelData[3]})`
+            grid.appendChild(d)
+
+        }
+    }
+    */
+    function paintCanvas(bitmap) {
+        canvas.width = 1920;
+        canvas.height = 1080;
+        let ctx = canvas.getContext("2d")
+        ctx.drawImage(bitmap, 0, 0)
+    }
+
+</script>
+
+</html>
