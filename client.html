@@ -42,13 +42,10 @@
     //paintCanvas(event.data)
     //}
     websocket.onmessage = async (event) => {
-        let start = performance.now()
         let clampedArray = new Uint8ClampedArray(await event.data.arrayBuffer());
         let imgData = new ImageData(clampedArray, 1920, 1080);
         let bitmap = await createImageBitmap(imgData);
         paintCanvas(bitmap)
-        let end = performance.now()
-        console.log(end - start)
         //await worker.postMessage(event.data)
     }
     /*function paint(array) {
