@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"log"
 	"net/http"
 	"time"
@@ -9,7 +10,7 @@ import (
 )
 
 // Channel that holds all the screenshots
-var screenshotsChannel chan []uint8 = make(chan []uint8, 24)
+var screenshotsChannel chan bytes.Buffer = make(chan bytes.Buffer, 24)
 
 // upgrader to change http to websocket
 var upgrader = websocket.Upgrader{
@@ -34,7 +35,7 @@ func handleWebSocket(conn *websocket.Conn) {
 	for {
 		//get img from channel
 		img := <-screenshotsChannel
-		err := conn.WriteMessage(2, img)
+		err := conn.WriteMessage(2, img.Bytes())
 		if err != nil {
 			log.Println("Posible disconnection: error at handleWebSocket()", err)
 			errcount = errcount + 1
@@ -42,12 +43,14 @@ func handleWebSocket(conn *websocket.Conn) {
 		if errcount > 30 {
 			return
 		}
-		time.Sleep(16 * time.Millisecond)
+		time.Sleep(30 * time.Millisecond)
 	}
 }
 
 func main() {
-	go sendScreenshotToChannel(screenshotsChannel)
+	//go sendCompressedScreenshotToChannel(screenshotsChannel)
+	go sendCompressedScreenshotToChannel(screenshotsChannel)
+	//sendCompressedHuffman()
 	http.HandleFunc("/", wsEndpoint)
 	log.Fatal(http.ListenAndServe(":8080", nil))
 

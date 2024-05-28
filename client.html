@@ -1,11 +1,12 @@
 <html>
-<header>
-    <link rel="stylesheet" href="styles.css">
 
-</header>
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
 
 
 <body>
+
     <canvas id="rasterCanvas" style="width: 1920px; height: 1080px;"></canvas>
 
 
@@ -30,6 +31,7 @@
 
 
 <script>
+
     let grid = document.getElementsByClassName("grid")[0]
     function getPixelData(array, startPosition) {
         return [array[startPosition], array[startPosition + 1], array[startPosition + 2], array[startPosition + 3]]
@@ -42,10 +44,21 @@
     //paintCanvas(event.data)
     //}
     websocket.onmessage = async (event) => {
-        let clampedArray = new Uint8ClampedArray(await event.data.arrayBuffer());
-        let imgData = new ImageData(clampedArray, 1920, 1080);
-        let bitmap = await createImageBitmap(imgData);
-        paintCanvas(bitmap)
+        let compressedDataAsArray = new Uint8ClampedArray(await event.data.arrayBuffer());
+        let blob = new Blob([compressedDataAsArray], { type: 'image/jpeg' });
+        let imageUrl = URL.createObjectURL(blob);
+        let img = new Image();
+        img.onload = () => {
+            canvas.width = 1280;
+            canvas.height = 720;
+            let ctx = canvas.getContext("2d")
+            ctx.drawImage(img, 0, 0)
+        }
+        img.src = imageUrl
+
+        //let imgData = new ImageData(compressedDataAsArray, 1920, 1080);
+        //let bitmap = await createImageBitmap(imgData);
+        //paintCanvas(bitmap)
         //await worker.postMessage(event.data)
     }
     /*function paint(array) {
