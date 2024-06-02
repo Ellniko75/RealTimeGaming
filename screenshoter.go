@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"image/jpeg"
 	"log"
 	"sort"
@@ -31,11 +30,11 @@ func sendCompressedScreenshotToChannel(ch chan bytes.Buffer) {
 	for {
 		var compressed bytes.Buffer
 		img, err := screenshot.CaptureScreen()
-		timeSt := time.Now()
-		resized := resize.Resize(1280, 720, img, resize.NearestNeighbor)
+		//timeSt := time.Now()
+		resized := resize.Resize(800, 600, img, resize.NearestNeighbor)
 		err = jpeg.Encode(&compressed, resized, nil)
-		elapsed := time.Since(timeSt)
-		fmt.Println(elapsed)
+		//elapsed := time.Since(timeSt)
+		//sfmt.Println(elapsed)
 
 		if err != nil {
 			log.Print("ERROOOOOOOOR")
@@ -46,6 +45,7 @@ func sendCompressedScreenshotToChannel(ch chan bytes.Buffer) {
 	}
 }
 
+// returns the index of the item, if not exists returns -1
 func contains(slice []repeatedItems, item byte) int {
 	for i, element := range slice {
 		if element.number == item {
@@ -62,15 +62,15 @@ type repeatedItems struct {
 }
 
 type tree struct {
-	nodeValue byte
-	left      *repeatedItems
-	right     *repeatedItems
+	nodeValue    byte
+	repeatedTime byte
+	left         *tree
+	right        *tree
 }
 
-func createTree(arr *[]repeatedItems) {
-	//head := tree{}
+func createTree(arr []repeatedItems) {
 
-	for i := 2; i < len(*arr); i++ {
+	for i := 2; i < len(arr); i++ {
 
 	}
 
@@ -80,8 +80,10 @@ func sendCompressedHuffman() {
 	numbersRepeated := []repeatedItems{}
 	for {
 		img, _ := screenshot.CaptureScreen()
+
 		for i := 0; i < len(img.Pix); i++ {
 			index := contains(numbersRepeated, img.Pix[i])
+			//if not exists in slice
 			if index == -1 {
 				newItem := repeatedItems{number: img.Pix[i], times: 1}
 				numbersRepeated = append(numbersRepeated, newItem)
@@ -89,10 +91,12 @@ func sendCompressedHuffman() {
 				numbersRepeated[index].times++
 			}
 		}
+		//sort increasingly
 		sort.Slice(numbersRepeated, func(i, j int) bool {
 			return numbersRepeated[i].times < numbersRepeated[j].times
 		})
-		createTree(&numbersRepeated)
+		//create huffman tree
+		createTree(numbersRepeated)
 		numbersRepeated = []repeatedItems{}
 
 		return
