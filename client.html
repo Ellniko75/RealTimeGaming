@@ -33,7 +33,7 @@
     }
     //const worker = new Worker('worker.js');
     let canvas = document.querySelector("#rasterCanvas")
-    let websocket = new WebSocket("http://localhost:8080/")
+    let websocket = new WebSocket("http://186.48.194.179:8080/")
 
     //handle key presses events and send the data to the server
     window.addEventListener("keydown", (e) => {
@@ -60,27 +60,6 @@
         }
         ))
     })
-
-    /*
-    const timer = async (timer) => {
-        return new Promise((resolve) => setTimeout(resolve, timer))
-    }
-    const mandar = async () => {
-        await timer(1000)
-        let abajo = true
-        while (true) {
-            websocket.send(JSON.stringify({
-                Key: "d",
-                Action: abajo ? "down" : "up"
-            }))
-
-            abajo = !abajo
-            await timer(10)
-        }
-    }
-    mandar()
-    */
-
 
     //worker.onmessage = (event) => {
     //paintCanvas(event.data)
@@ -112,13 +91,14 @@
  
         }
     }
-    */
+    
     function paintCanvas(bitmap) {
         canvas.width = 1920;
         canvas.height = 1080;
         let ctx = canvas.getContext("2d")
         ctx.drawImage(bitmap, 0, 0)
     }
+    */
 
 </script>
 
