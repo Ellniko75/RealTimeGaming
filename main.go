@@ -16,8 +16,8 @@ var screenshotsChannel = make(chan bytes.Buffer, 40)
 
 // upgrader to change http to websocket
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  4096,
+	WriteBufferSize: 4096,
 	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
@@ -46,28 +46,32 @@ func handleWebSocket(conn *websocket.Conn) {
 		if errcount > 30 {
 			return
 		}
-		time.Sleep(10 * time.Millisecond)
+		time.Sleep(20 * time.Millisecond)
 	}
 }
 
 type jsonKeyInputs struct {
-	Key    string
-	Action string
+	Key    string //key the user wants to press
+	Action string //up or down
 }
 
 // reads messages from the client on a loop and executes them calling the presskey function
 func manageClientInputs(conn *websocket.Conn) {
 	for {
+		if conn == nil {
+			return
+		}
 		_, msg, err := conn.ReadMessage()
 		if err != nil {
 			break
 		}
-
 		var deseralizedJson jsonKeyInputs
+		//deserialize the json to a struct
 		errorr := json.Unmarshal(msg, &deseralizedJson)
 		if errorr != nil {
-			fmt.Print("errorrrrrrrr", err)
+			fmt.Print("###errorrrrrrrr###", err)
 		}
+		//handle key presses actions
 		if deseralizedJson.Action == "down" {
 			//key down
 			keyDownRobotgo(deseralizedJson.Key)
@@ -82,11 +86,18 @@ func manageClientInputs(conn *websocket.Conn) {
 
 }
 
+func serveVideo(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	http.FileServer(http.Dir("Streaming")).ServeHTTP(w, r)
+}
+
 func main() {
-	//go sendCompressedScreenshotToChannel(screenshotsChannel)
 	go sendCompressedScreenshotToChannel(screenshotsChannel)
-	//sendCompressedHuffman()
 	http.HandleFunc("/", wsEndpoint)
+
+	//fs := http.FileServer(http.Dir("./Streaming"))
+	//http.Handle("/stream/", http.StripPrefix("/stream/", fs))
 	log.Fatal(http.ListenAndServe(":8080", nil))
 
 }

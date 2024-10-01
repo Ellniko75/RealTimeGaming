@@ -1,13 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"syscall"
-	"unicode/utf8"
-
 	"github.com/go-vgo/robotgo"
 )
 
+/*
 var (
 	user32         = syscall.NewLazyDLL("user32.dll")
 	procKeybdEvent = user32.NewProc("keybd_event")
@@ -96,7 +93,7 @@ func ExecuteKey(key string) {
 	}
 	pressKey(keyCode)
 }
-
+*/
 // Recieves the key as a string ("w","a","s", etc) and executes it with robotgo
 func keyDownRobotgo(key string) {
 	robotgo.KeyDown(key)

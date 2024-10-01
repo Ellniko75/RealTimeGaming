@@ -7,17 +7,9 @@
 
 <body>
 
-    <canvas id="rasterCanvas" style="width: 1280px; height: 720px;"></canvas>
+    <canvas id="rasterCanvas" style="width: 1920px; height: 1080px;"></canvas>
 
 
-    <div class="main">
-        <!-- <div class="grid">
-
-        </div>
-         -->
-
-
-    </div>
 
 
 </body>
@@ -26,14 +18,15 @@
 
 
 <script>
-
+    
     let grid = document.getElementsByClassName("grid")[0]
     function getPixelData(array, startPosition) {
         return [array[startPosition], array[startPosition + 1], array[startPosition + 2], array[startPosition + 3]]
     }
     //const worker = new Worker('worker.js');
     let canvas = document.querySelector("#rasterCanvas")
-    let websocket = new WebSocket("http://186.48.194.179:8080/")
+    
+    let websocket = new WebSocket("http://localhost:8080/")
 
     //handle key presses events and send the data to the server
     window.addEventListener("keydown", (e) => {
@@ -65,13 +58,13 @@
     //paintCanvas(event.data)
     //}
     websocket.onmessage = async (event) => {
-        let compressedDataAsArray = new Uint8Array(await event.data.arrayBuffer());
-        let blob = new Blob([compressedDataAsArray], { type: 'image/jpeg' });
-        let imageUrl = URL.createObjectURL(blob);
+        let originalBlob = new Uint8Array(await event.data.arrayBuffer());
+        let blobImage = new Blob([originalBlob], { type: 'image/jpeg' });
+        let imageUrl = URL.createObjectURL(blobImage);
         let img = new Image();
         img.onload = () => {
-            canvas.width = 800;
-            canvas.height = 600;
+            canvas.width = 1280;
+            canvas.height = 720;
             let ctx = canvas.getContext("2d")
             ctx.drawImage(img, 0, 0)
         }
